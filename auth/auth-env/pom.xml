@@ -105,6 +105,11 @@
             <artifactId>terasoluna-gfw-recommended-dependencies</artifactId>
             <type>pom</type>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.2-1004-jdbc4</version>
+        </dependency>
         <!-- == End TERASOLUNA == -->
     </dependencies>
 </project>

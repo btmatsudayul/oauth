@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:oauth2="http://www.springframework.org/schema/security/oauth2"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security.xsd
+           http://www.springframework.org/schema/jdbc
+           http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+           http://www.springframework.org/schema/security/oauth2
+           http://www.springframework.org/schema/security/spring-security-oauth2.xsd
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- トークン発行のためのエントリポイントのアクセス制御ルールの定義 -->
+    <security:http pattern="/oauth/*token*/**"
+        authentication-manager-ref="clientAuthenticationManager" >  <!-- (1) -->
+        <security:http-basic />           <!-- (2) -->
+        <security:csrf disabled="true"/>  <!-- (3) -->
+    </security:http>
+
+    <oauth2:authorization-server
+        client-details-service-ref="clientDetailsService"
+        token-services-ref="tokenServices"
+        token-endpoint-url="/oauth/token"
+        authorization-endpoint-url="/oauth/authorize"
+        user-approval-handler-ref="userApprovalHandler"> <!-- (1) -->
+        <oauth2:authorization-code />  <!-- (2) -->
+        <oauth2:implicit />  <!-- (3) -->
+        <oauth2:refresh-token />  <!-- (4) -->
+        <oauth2:client-credentials />  <!-- (5) -->
+        <oauth2:password />  <!-- (6) -->
+    </oauth2:authorization-server>
+
+    <bean id="userApprovalHandler"
+        class="org.springframework.security.oauth2.provider.approval.ApprovalStoreUserApprovalHandler">  <!-- (2) -->
+        <property name="clientDetailsService" ref="clientDetailsService"/>
+        <property name="approvalStore" ref="approvalStore"/>
+        <property name="requestFactory" ref="requestFactory"/>
+    </bean>
+
+    <bean id="approvalStore"
+          class="org.springframework.security.oauth2.provider.approval.InMemoryApprovalStore"/>
+
+    <bean id="requestFactory"
+          class="org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory">
+        <constructor-arg ref="clientDetailsService"/>
+    </bean>
+
+    <bean id="tokenServices"
+        class="org.springframework.security.oauth2.provider.token.DefaultTokenServices">  <!-- (2) -->
+        <property name="tokenStore" ref="tokenStore" />
+        <property name="clientDetailsService" ref="clientDetailsService" />
+        <property name="supportRefreshToken" value="true" />  <!-- (3) -->
+    </bean>
+
+    <bean id="tokenStore"
+      class="org.springframework.security.oauth2.provider.token.store.JdbcTokenStore"> <!-- (4) -->
+      <constructor-arg ref="tokenDataSource" />
+    </bean>
+
+    <bean id="tokenDataSource" class="org.apache.commons.dbcp2.BasicDataSource">  <!-- (5) -->
+      <property name="url" value="jdbc:postgresql://localhost/auth" />
+      <property name="username" value="postgres" />
+      <property name="password" value="" />
+    </bean>
+
+    <jdbc:initialize-database data-source="tokenDataSource">  <!-- (6) -->
+      <jdbc:script location="classpath:database/token-schema.sql" />
+    </jdbc:initialize-database>
+
+    <security:authentication-manager id="clientAuthenticationManager">  <!-- (5) -->
+        <security:authentication-provider user-service-ref="clientDetailsUserService" >  <!-- (6) -->
+            <security:password-encoder ref="passwordEncoder"/>  <!-- (7) -->
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+    <bean id="clientDetailsUserService"
+        class="org.springframework.security.oauth2.provider.client.ClientDetailsUserDetailsService">  <!-- (8) -->
+        <constructor-arg ref="clientDetailsService" />  <!-- (9) -->
+    </bean>
+
+</beans>
