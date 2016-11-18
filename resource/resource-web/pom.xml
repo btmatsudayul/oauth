@@ -150,5 +150,9 @@
         -->
         <!-- == End Coding Support == -->
 
+        <dependency>
+            <groupId>org.springframework.security.oauth</groupId>
+            <artifactId>spring-security-oauth2</artifactId>
+        </dependency>
     </dependencies>
 </project>

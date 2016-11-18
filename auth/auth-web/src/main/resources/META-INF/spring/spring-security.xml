@@ -9,14 +9,32 @@
 
     <sec:http pattern="/resources/**" security="none"/>
     <sec:http>
-        <sec:form-login/>
+        <sec:form-login
+            login-page="/login/loginForm"
+            login-processing-url="/login"
+            authentication-failure-url="/login/loginForm?error" /> 
         <sec:logout/>
         <sec:access-denied-handler ref="accessDeniedHandler"/>
         <sec:custom-filter ref="userIdMDCPutFilter" after="ANONYMOUS_FILTER"/>
         <sec:session-management />
+        <sec:intercept-url pattern="/login/**" access="permitAll"/>
+        <sec:intercept-url pattern="/**" access="isAuthenticated()"/>
     </sec:http>
 
-    <sec:authentication-manager />
+    <sec:authentication-manager>
+        <sec:authentication-provider
+            user-service-ref="userDetailsService">
+            <sec:password-encoder ref="passwordEncoder" />
+        </sec:authentication-provider>
+    </sec:authentication-manager>
+
+    <bean id="userDetailsService"
+          class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean id="passwordEncoder"
+        class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" /> 
 
     <!-- CSRF Protection -->
     <bean id="accessDeniedHandler"
