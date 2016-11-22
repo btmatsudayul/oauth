@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="todo.domain.repository.todo.TodoRepository">
+
+    <resultMap id="todoResultMap" type="Todo">
+        <id property="todoId" column="todo_id" />
+        <!--カラムusernameを追加 -->
+        <result property="username" column="username" />
+        <result property="todoTitle" column="todo_title" />
+        <result property="finished" column="finished" />
+        <result property="createdAt" column="created_at" />
+    </resultMap>
+
+    <select id="findOne" resultMap="todoResultMap">  <!-- 属性parameterTypeを削除 -->
+    <![CDATA[
+        SELECT
+            todo_id,
+            username, /* 追加 */
+            todo_title,
+            finished,
+            created_at
+        FROM
+            todo
+        WHERE
+            todo_id = #{0} /* 修正 */
+            AND /* 追加 */
+            username =  #{1} /* 追加 */
+    ]]>
+    </select>
+
+    <select id="findAll" parameterType="String" resultMap="todoResultMap">
+    <![CDATA[
+        SELECT
+            todo_id,
+            username,
+            todo_title,
+            finished,
+            created_at
+        FROM
+            todo
+        WHERE
+            username = #{username}
+    ]]>
+    </select>
+
+    <!-- ここから追加 -->
+    <select id="all" resultMap="todoResultMap">
+    <![CDATA[
+        SELECT
+            todo_id,
+            username,
+            todo_title,
+            finished,
+            created_at
+        FROM
+            todo
+    ]]>
+    </select>
+    <!-- ここまで追加 -->
+
+    <insert id="create" parameterType="Todo">
+    <![CDATA[
+        INSERT INTO todo
+        (
+            todo_id,
+            username, /* 追加 */
+            todo_title,
+            finished,
+            created_at
+        )
+        VALUES
+        (
+            #{todoId},
+            #{username}, /* 追加 */
+            #{todoTitle},
+            #{finished},
+            #{createdAt}
+        )
+    ]]>
+    </insert>
+
+    <update id="update" parameterType="Todo">
+    <![CDATA[
+        UPDATE todo
+        SET
+            todo_title = #{todoTitle},
+            finished = #{finished},
+            created_at = #{createdAt}
+        WHERE
+            todo_id = #{todoId}
+            AND /* 追加 */
+            username = #{username} /* 追加 */
+    ]]>
+    </update>
+
+    <delete id="delete" parameterType="Todo">
+    <![CDATA[
+        DELETE FROM
+            todo
+        WHERE
+            todo_id = #{todoId}
+            AND /* 追加 */
+            username = #{username} /* 追加 */
+    ]]>
+    </delete>
+
+    <select id="countByFinished"
+        resultType="Long"> <!-- 属性parameterTypeを削除 -->
+    <![CDATA[
+        SELECT
+            COUNT(*)
+        FROM
+            todo
+        WHERE
+            finished = #{0} /* 修正 */
+            AND /* 追加 */
+            username = #{1} /* 追加 */
+    ]]>
+    </select>
+
+</mapper>

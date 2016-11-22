@@ -96,6 +96,7 @@
     <bean id="systemExceptionResolver"
         class="org.terasoluna.gfw.web.exception.SystemExceptionResolver">
         <property name="exceptionCodeResolver" ref="exceptionCodeResolver" />
+        <property name="excludedExceptions" value="org.springframework.security.oauth2.client.resource.UserRedirectRequiredException" /> <!-- (1) -->
         <!-- Setting and Customization by project. -->
         <property name="order" value="3" />
         <property name="exceptionMappings">
@@ -131,5 +132,4 @@
     <bean id="pathMatcher" class="org.springframework.util.AntPathMatcher">
         <property name="trimTokens" value="false" />
     </bean>
-
 </beans>

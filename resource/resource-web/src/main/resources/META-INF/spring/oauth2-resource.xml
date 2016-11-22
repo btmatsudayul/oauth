@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:oauth2="http://www.springframework.org/schema/security/oauth2"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security.xsd
+           http://www.springframework.org/schema/security/oauth2
+           http://www.springframework.org/schema/security/spring-security-oauth2.xsd
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <security:http pattern="/todos/**" create-session="stateless"
+                   use-expressions="true"
+                   entry-point-ref="oauth2AuthenticationEntryPoint"> <!-- (1) -->
+        <security:expression-handler ref="oauth2ExpressionHandler"/> <!-- (1) -->
+        <security:csrf disabled="true"/> <!-- (2) -->
+        <security:intercept-url pattern="/todos/" method="GET"
+                                access="#oauth2.hasScope('read')" /> <!-- (3) -->
+        <security:intercept-url pattern="/todos/*" method="POST"
+                                access="#oauth2.hasScope('create')" /> <!-- (3) -->
+        <security:intercept-url pattern="/todos/*" method="PUT"
+                                access="#oauth2.hasScope('update')" />
+        <security:intercept-url pattern="/todos/*" method="DELETE"
+                                access="#oauth2.hasScope('delete')" />
+        <security:custom-filter ref="oauth2ProviderFilter"
+                                before="PRE_AUTH_FILTER" /> <!-- (2) -->
+    </security:http>
+
+    <bean id="oauth2AuthenticationEntryPoint"
+              class="org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint" /> <!-- (3) -->
+
+    <bean id="oauth2AccessDeniedHandler"
+       class="org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler" /> <!-- (4) -->
+
+    <bean id="authenticationManager"
+          class="org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationManager"> <!-- (5) -->
+        <property name="tokenServices" ref="tokenServices"/>
+    </bean>
+
+    <bean id="oauth2ExpressionHandler"
+          class="org.springframework.security.oauth2.provider.expression.OAuth2WebSecurityExpressionHandler"/> <!-- (4) -->
+
+    <oauth2:resource-server id="oauth2ProviderFilter" resource-id="todoResource"
+                            token-services-ref="tokenServices" /> <!-- (6) -->
+
+    <bean id="tokenServices"
+          class="org.springframework.security.oauth2.provider.token.DefaultTokenServices">
+        <property name="tokenStore" ref="tokenStore" />
+    </bean>
+
+    <bean id="tokenStore"
+          class="org.springframework.security.oauth2.provider.token.store.JdbcTokenStore">
+        <constructor-arg ref="tokenDataSource"/>
+    </bean>
+
+    <!-- トークンストア用のDBは認可サーバと共有する -->
+    <bean id="tokenDataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+        <property name="url" value="jdbc:postgresql://localhost/auth" />
+        <property name="username" value="postgres" />
+        <property name="password" value="P0stgres" />
+    </bean>
+
+</beans>

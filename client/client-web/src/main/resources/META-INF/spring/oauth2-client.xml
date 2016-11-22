@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:sec="http://www.springframework.org/schema/security"
+    xmlns:oauth2="http://www.springframework.org/schema/security/oauth2"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/security/oauth2 http://www.springframework.org/schema/security/spring-security-oauth2.xsd
+    ">
+
+    <oauth2:client id="oauth2ClientContextFilter" /> <!-- (1) -->
+
+    <oauth2:resource id="authorizationCode/todo"
+        client-id="client"
+        client-secret="firstSecSecret"
+        type="authorization_code"
+        scope="read,write"
+        access-token-uri="http://localhost:8080/auth-web/oauth/token"
+        client-authentication-scheme="form"
+        user-authorization-uri="http://localhost:8080/auth-web/oauth/authorize"/> <!-- (1) -->
+
+    <oauth2:rest-template resource="authorizationCode/todo"
+                      id="todoAuthorizationCodeRestTemplate" /> <!-- (2) -->
+</beans>
