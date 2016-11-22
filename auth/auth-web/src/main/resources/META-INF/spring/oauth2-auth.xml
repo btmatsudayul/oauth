@@ -69,7 +69,7 @@
     <bean id="tokenDataSource" class="org.apache.commons.dbcp2.BasicDataSource">  <!-- (5) -->
       <property name="url" value="jdbc:postgresql://localhost/auth" />
       <property name="username" value="postgres" />
-      <property name="password" value="" />
+      <property name="password" value="P0stgres" />
     </bean>
 
     <jdbc:initialize-database data-source="tokenDataSource">  <!-- (6) -->

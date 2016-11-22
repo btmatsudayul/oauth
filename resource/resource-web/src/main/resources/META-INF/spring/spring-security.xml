@@ -9,14 +9,36 @@
 
     <sec:http pattern="/resources/**" security="none"/>
     <sec:http>
-        <sec:form-login/>
-        <sec:logout/>
+        <sec:form-login
+            login-page="/login.jsp"
+            authentication-failure-url="/login.jsp?error=true"
+            login-processing-url="/authenticate" />
+        <sec:logout
+            logout-url="/logout"
+            logout-success-url="/"
+            delete-cookies="JSESSIONID" />
+        <sec:intercept-url pattern="/login.jsp" access="permitAll" />
+        <sec:intercept-url pattern="/**" access="isAuthenticated()" />
         <sec:access-denied-handler ref="accessDeniedHandler"/>
         <sec:custom-filter ref="userIdMDCPutFilter" after="ANONYMOUS_FILTER"/>
         <sec:session-management />
     </sec:http>
 
-    <sec:authentication-manager />
+    <sec:authentication-manager>
+        <!-- 追加(2)ここから -->
+        <sec:authentication-provider
+            user-service-ref="userDetailsService">
+            <sec:password-encoder ref="passwordEncoder" />
+        </sec:authentication-provider>
+        <!-- 追加(2)ここまで -->
+    </sec:authentication-manager>
+
+    <!-- 追加(3)ここから -->
+    <bean id="userDetailsService"
+          class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!-- 追加(3)ここまで -->
 
     <!-- CSRF Protection -->
     <bean id="accessDeniedHandler"

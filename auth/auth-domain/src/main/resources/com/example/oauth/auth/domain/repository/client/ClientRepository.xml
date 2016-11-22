@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.oauth.auth.domain.repository.client.ClientRepository">
+
+    <resultMap id="clientResultMap" type="Client">
+        <id property="clientId" column="client_id" />
+        <result property="clientSecret" column="client_secret" />
+        <result property="clientName" column="client_name" />
+        <result property="accessTokenValidity" column="access_token_validity" />
+    </resultMap>
+    
+    <resultMap id="clientScopesResultMap" type="ClientScopes">
+        <id property="clientId" column="client_id" />
+        <collection property="scopes" ofType="Scope">
+            <result property="scope" column="scope" />
+        </collection>
+    </resultMap>
+
+    <resultMap id="clientResourcesResultMap" type="ClientResources">
+        <id property="clientId" column="client_id" />
+        <collection property="resourceIds" ofType="java.lang.String">
+            <result column="resource_id" />
+        </collection>
+    </resultMap>
+
+    <resultMap id="clientGrantsResultMap" type="ClientGrants">
+        <id property="clientId" column="client_id" />
+        <collection property="grants" ofType="Grant">
+            <result property="grant" column="grant" />
+        </collection>
+    </resultMap>
+        
+    <resultMap id="clientRedirectUrisResultMap" type="ClientRedirectUris">
+        <id property="clientId" column="client_id" />
+        <collection property="redirectUris" ofType="java.lang.String">
+            <result column="redirect_uri" />
+        </collection>
+    </resultMap>
+
+    <select id="findClientByClientId" parameterType="String" resultMap="clientResultMap">
+        SELECT
+            client_id,
+            client_secret,
+            client_name,
+            access_token_validity
+        FROM
+            clients
+        WHERE
+            client_id = #{clientId}
+    </select>
+    
+    <select id="findClientScopesByClientId" parameterType="String" resultMap="clientScopesResultMap">
+        SELECT
+            client_id,
+            scope
+        FROM
+            scopes
+        WHERE
+            client_id = #{clientId}
+    </select>
+    
+    <select id="findClientResourcesByClientId" parameterType="String" resultMap="clientResourcesResultMap">
+        SELECT
+            client_id,
+            resource_id
+        FROM
+            resources
+        WHERE
+            client_id = #{clientId}
+    </select>
+    
+    <select id="findClientGrantsByClientId" parameterType="String" resultMap="clientGrantsResultMap">
+        SELECT
+            client_id,
+            grant
+        FROM
+            grants
+        WHERE
+            client_id = #{clientId}
+    </select>
+    
+    <select id="findClientRedirectUrisByClientId" parameterType="String" resultMap="clientRedirectUrisResultMap">
+        SELECT
+            client_id,
+            redirect_uri
+        FROM
+            redirect_uris
+        WHERE
+            client_id = #{clientId}
+    </select>   
+    
+</mapper>

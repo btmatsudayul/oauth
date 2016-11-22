@@ -21,7 +21,7 @@
             </tr>
             <tr>
                 <td>&nbsp;</td>
-                <td><button>Login</button></td>
+                <td><input type="submit" value="Login" /></td>
             </tr>
         </table>
     </form:form>
